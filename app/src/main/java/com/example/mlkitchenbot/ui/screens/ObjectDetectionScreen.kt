@@ -28,9 +28,12 @@ fun ObjectDetectionScreen() {
     val cameraProviderFuture = remember { ProcessCameraProvider.getInstance(context) }
     val objectDetectionManager = remember { ObjectDetectionManager() }
 
+    val screenWidth = remember { mutableStateOf(context.resources.displayMetrics.widthPixels) }
+    val screenHeight = remember { mutableStateOf(context.resources.displayMetrics.heightPixels) }
+
     var detectedObjects by remember { mutableStateOf<List<DetectedObject>>(emptyList()) }
-    var imageWidth by remember { mutableIntStateOf(0) }
-    var imageHeight by remember { mutableIntStateOf(0) }
+    val imageWidth = remember { mutableStateOf(480) }
+    val imageHeight = remember { mutableStateOf(640) }
 
     Box(modifier = Modifier.fillMaxSize()) {
         AndroidView(
@@ -48,8 +51,8 @@ fun ObjectDetectionScreen() {
                         .build()
                         .also { imageAnalysis ->
                             imageAnalysis.setAnalyzer(executor) { imageProxy ->
-                                imageWidth = imageProxy.width
-                                imageHeight = imageProxy.height
+                                imageWidth.value = imageProxy.width
+                                imageHeight.value = imageProxy.height
                                 val image = imageProxy.image
                                 if (image != null) {
                                     val bitmap = image.toBitmap()
@@ -79,6 +82,6 @@ fun ObjectDetectionScreen() {
             modifier = Modifier.fillMaxSize()
         )
 
-        DetectedObjectsOverlay(detectedObjects, imageWidth, imageHeight)
+        DetectedObjectsOverlay(detectedObjects, imageWidth.value, imageHeight.value, screenWidth.value, screenHeight.value)
     }
 }
