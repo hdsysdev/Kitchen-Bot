@@ -1,6 +1,6 @@
 package com.example.mlkitchenbot.ui.views
 
-import android.graphics.PointF
+import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -9,7 +9,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toComposeRect
@@ -17,35 +16,34 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.sp
 import com.example.mlkitchenbot.detection.DetectedObject
-import com.example.mlkitchenbot.utils.adjustPoint
-import com.example.mlkitchenbot.utils.adjustSize
 import com.example.mlkitchenbot.utils.drawBounds
 
 @Composable
-fun DetectedObjectsOverlay(detectedObjects: List<DetectedObject>, imageWidth: Int, imageHeight: Int, screenWidth: Int, screenHeight: Int) {
+fun DetectedObjectsOverlay(
+    detectedObjects: List<DetectedObject>,
+    imageWidth: Int,
+    imageHeight: Int,
+    intValue: Int,
+    value1: Int
+) {
     val density = LocalDensity.current
 
     Canvas(modifier = Modifier.fillMaxSize()) {
-        val scaleX = size.width / imageWidth
-        val scaleY = size.height / imageHeight
-
         detectedObjects.forEach { detectedObject ->
             val boundingBox = detectedObject.boundingBox.toComposeRect()
-            val topLeft = adjustPoint(PointF(boundingBox.topLeft.x, boundingBox.topLeft.y), imageWidth, imageHeight, screenWidth, screenHeight)
-            val size = adjustSize(boundingBox.size, imageWidth, imageHeight, screenWidth, screenHeight)
+            drawBounds(boundingBox, imageWidth, imageHeight, Color.Yellow, 10f)
 
-            drawBounds(topLeft, size, Color.Yellow, 10f)
-//
-//            // Draw label
-//            val label = detectedObject.labels.firstOrNull()
-//            if (label != null) {
-//                drawLabel(
-//                    label = "${label.text} (${(label.confidence * 100).toInt()}%)",
-//                    x = scaledRect.left,
-//                    y = scaledRect.top,
-//                    density = density
-//                )
-//            }
+            // Draw label
+            val label = detectedObject.labels.firstOrNull()
+            Log.d("DetectedObjectsOverlay", "label: ${label?.text}")
+            if (label != null) {
+                drawLabel(
+                    label = "${label.text} (${(label.confidence * 100).toInt()}%)",
+                    x =  boundingBox.left,
+                    y = boundingBox.top,
+                    density = density
+                )
+            }
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.example.mlkitchenbot.ui.screens
 
+import android.util.Log
 import androidx.annotation.OptIn
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -28,12 +29,12 @@ fun ObjectDetectionScreen() {
     val cameraProviderFuture = remember { ProcessCameraProvider.getInstance(context) }
     val objectDetectionManager = remember { ObjectDetectionManager() }
 
-    val screenWidth = remember { mutableStateOf(context.resources.displayMetrics.widthPixels) }
-    val screenHeight = remember { mutableStateOf(context.resources.displayMetrics.heightPixels) }
+    val screenWidth = remember { mutableIntStateOf(context.resources.displayMetrics.widthPixels) }
+    val screenHeight = remember { mutableIntStateOf(context.resources.displayMetrics.heightPixels) }
 
     var detectedObjects by remember { mutableStateOf<List<DetectedObject>>(emptyList()) }
-    val imageWidth = remember { mutableStateOf(480) }
-    val imageHeight = remember { mutableStateOf(640) }
+    val imageWidth = remember { mutableIntStateOf(480) }
+    val imageHeight = remember { mutableIntStateOf(640) }
 
     Box(modifier = Modifier.fillMaxSize()) {
         AndroidView(
@@ -51,8 +52,9 @@ fun ObjectDetectionScreen() {
                         .build()
                         .also { imageAnalysis ->
                             imageAnalysis.setAnalyzer(executor) { imageProxy ->
-                                imageWidth.value = imageProxy.width
-                                imageHeight.value = imageProxy.height
+                                imageWidth.intValue = imageProxy.width
+                                imageHeight.intValue = imageProxy.height
+                                Log.d("ObjectDetectionScreen", "image width: ${imageWidth.intValue}, height: ${imageHeight.intValue}")
                                 val image = imageProxy.image
                                 if (image != null) {
                                     val bitmap = image.toBitmap()
@@ -82,6 +84,6 @@ fun ObjectDetectionScreen() {
             modifier = Modifier.fillMaxSize()
         )
 
-        DetectedObjectsOverlay(detectedObjects, imageWidth.value, imageHeight.value, screenWidth.value, screenHeight.value)
+        DetectedObjectsOverlay(detectedObjects, imageWidth.intValue, imageHeight.intValue, screenWidth.intValue, screenHeight.intValue)
     }
 }
